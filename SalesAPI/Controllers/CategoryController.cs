@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SalesAPI.Data;
 using SalesAPI.DTO;
 using SalesAPI.Interfaces;
@@ -19,7 +20,7 @@ namespace SalesAPI.Controllers
             _salesDbContext = salesDbContext;
         }
 
-        [HttpPost("create")]
+        [HttpPost("create"), Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryDTO categoryDTO)
         {
             if (categoryDTO == null || string.IsNullOrWhiteSpace(categoryDTO.CategoryName))
@@ -72,7 +73,7 @@ namespace SalesAPI.Controllers
             return Ok(categories);
         }
 
-        [HttpPut("update/{id}")]
+        [HttpPut("update/{id}"), Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryDTO categoryDTO)
         {
             if (categoryDTO == null || string.IsNullOrWhiteSpace(categoryDTO.CategoryName))
@@ -93,7 +94,7 @@ namespace SalesAPI.Controllers
             return Ok("Category updated successfully.");
         }
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("delete/{id}"), Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
             var category = await _categoryRepository.ReadCategoryById(id);

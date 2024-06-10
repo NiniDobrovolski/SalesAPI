@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SalesAPI.Interfaces;
 using SalesAPI.DTO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SalesAPI.Controllers
 {
@@ -16,14 +17,16 @@ namespace SalesAPI.Controllers
         }
 
         [HttpPost]
-        [Route("Create")]
-        public IActionResult Create(ProductDTO product)
+        [Route("Create"), Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create([FromBody] ProductDTO productDTO)
         {
-            if (_productRepository.SearchByName(product.Name) != null)
+            var existingProduct = await _productRepository.SearchByName(productDTO.Name);
+            if (existingProduct != null)
             {
-                return BadRequest("Product name already taken");
+                return BadRequest("Product name already taken.");
             }
-            _productRepository.Create(product);
+
+            await _productRepository.Create(productDTO);
             return Ok("Success");
         }
 
@@ -39,19 +42,19 @@ namespace SalesAPI.Controllers
         }
 
         [HttpGet("search product by name/{name}")]
-        public IActionResult SearchByName(string name)
+        public async Task<IActionResult> SearchByName(string name)
         {
-            var products = _productRepository.SearchByName(name);
+            var products = await _productRepository.SearchByPartialName(name);
             if (products == null || !products.Any())
             {
-                return NotFound("No products found with the given name");
+                return NotFound("No products found with the given name.");
             }
             return Ok(products);
         }
 
 
 
-        [HttpPut("update/{id}")]
+        [HttpPut("update/{id}"), Authorize(Roles = "Admin")]
         public IActionResult Update(int id, [FromBody] ProductDTO productDTO)
         {
             var product = _productRepository.Read(id);  
@@ -70,7 +73,7 @@ namespace SalesAPI.Controllers
             return Ok("Success");
         }
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("delete/{id}"), Authorize(Roles = "Admin")]
         public IActionResult Delete(int id)
         {
             var product = _productRepository.Read(id);

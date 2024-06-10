@@ -2,6 +2,7 @@
 using SalesAPI.Interfaces;
 using SalesAPI.Models;
 using SalesAPI.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace SalesAPI.Repository
 {
@@ -14,7 +15,7 @@ namespace SalesAPI.Repository
             _context = context;
         }
 
-        public void Create(ProductDTO product)
+        public async Task Create(ProductDTO product)
         {
             Product productToAdd = new Product();
             productToAdd.CategoryID = product.CategoryID;
@@ -22,7 +23,7 @@ namespace SalesAPI.Repository
             productToAdd.Price = product.Price;
             productToAdd.Qty = product.Qty;
             _context.Products.Add(productToAdd);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
 
         public Product Read(int id)
@@ -30,11 +31,16 @@ namespace SalesAPI.Repository
             return _context.Products.Find(id);
         }
 
-        public IEnumerable<Product> SearchByName(string name)
+        public async Task<Product> SearchByName(string name)
         {
-            return _context.Products
-                             .Where(p => p.Name.Contains(name))
-                             .ToList();
+            return await _context.Products.FirstOrDefaultAsync(p => p.Name == name);
+        }
+
+        public async Task<IEnumerable<Product>> SearchByPartialName(string name)
+        {
+            return await _context.Products
+                                 .Where(p => p.Name.Contains(name))
+                                 .ToListAsync();
         }
 
         public void Update(int id, ProductDTO productDTO)
