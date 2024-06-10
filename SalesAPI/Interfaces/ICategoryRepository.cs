@@ -5,6 +5,10 @@ namespace SalesAPI.Interfaces
 	{
         Task CreateCategory(Category category);
         ICollection<Product> Read(string categoryName);
+        Task<Category> ReadCategoryById(int categoryId);
+        Task<IEnumerable<Category>> ReadAllCategories();
+        Task UpdateCategory(Category category);
+        Task DeleteCategory(int categoryId);
     }
 }
 

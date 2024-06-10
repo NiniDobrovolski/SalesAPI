@@ -57,6 +57,10 @@ namespace SalesAPI.Data
                 .HasIndex(a => a.Username)
                 .IsUnique();
 
+            modelBuilder.Entity<Category>()
+                .HasIndex(c => c.CategoryName)
+                .IsUnique();
+
             base.OnModelCreating(modelBuilder);
         }
 

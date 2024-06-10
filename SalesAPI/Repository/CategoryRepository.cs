@@ -1,4 +1,5 @@
-﻿using SalesAPI.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SalesAPI.Data;
 using SalesAPI.Interfaces;
 using SalesAPI.Models;
 
@@ -28,6 +29,32 @@ namespace SalesAPI.Repository
             }
 
             return _context.Products.Where(i => i.CategoryID == categoryId).ToList();
+        }
+
+        public async Task<Category> ReadCategoryById(int categoryId)
+        {
+            return await _context.Categories.FindAsync(categoryId);
+        }
+
+        public async Task<IEnumerable<Category>> ReadAllCategories()
+        {
+            return await _context.Categories.ToListAsync();
+        }
+
+        public async Task UpdateCategory(Category category)
+        {
+            _context.Categories.Update(category);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteCategory(int categoryId)
+        {
+            var category = await ReadCategoryById(categoryId);
+            if (category != null)
+            {
+                _context.Categories.Remove(category);
+                await _context.SaveChangesAsync();
+            }
         }
 
     }
